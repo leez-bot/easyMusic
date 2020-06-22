@@ -9,6 +9,7 @@ var httpProxy = require('http-proxy');  //跨域代理中间件
 
 var proxy = httpProxy.createProxyServer({
     target: tatgetPATH,   //接口地址
+    toProxy: 'http://lys1848:lz950814.@proxy.h3c.com:8080',
     // 下面的设置用于https
     // ssl: {
     //     key: fs.readFileSync('server_decrypt.key', 'utf8'),

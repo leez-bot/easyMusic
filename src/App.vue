@@ -1,10 +1,5 @@
 <template>
   <div id="app">
-    <div class="route-wrapper" v-if="showRoute">
-      <router-link to="/">Go to index</router-link>
-      <router-link to="/list">Go to list</router-link>
-      <router-link to="/user">Go to user</router-link>
-    </div>
     <router-view></router-view>
   </div>
 </template>
@@ -15,7 +10,6 @@ export default {
   name: 'App',
   data () {
     return {
-      showRoute: process.env.NODE_ENV === 'development'
     }
   }
 }

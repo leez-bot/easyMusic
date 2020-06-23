@@ -6,11 +6,11 @@ export const getSongList = async ({ commit, state }, params) => {
     const { data, err } = await axios.request({
         url: '/findmusic',
         method: 'post',
-        data: 'keyword=周杰伦&page=1&pagesize=30'
+        data: `keyword=${params.keyword}&page=${params.page}&pagesize=${params.pagesize}`
     })
     if (data) {
         commit(types.SETSTATE, { })
-        return Promise.resolve(data)
+        return Promise.resolve(data.list)
     }
     if (err) { commit(types.SETSTATE, { }) }
 }
@@ -19,7 +19,7 @@ export const getSongDetail = async ({ commit, state }, params) => {
     const { data, err } = await axios.request({
         url: '/musicdetails',
         method: 'post',
-        data: 'id=75535053'
+        data: `id=${params.id}`
     })
     if (data) {
         commit(types.SETSTATE, { })

@@ -10,7 +10,7 @@ module.exports = {
             //     target: 'https://music.2hakeji.com'
             // },
             '/': {
-                target: 'localhost:3000'
+                target: 'https://music.2hakeji.com'
             },
         },
         before(app) {

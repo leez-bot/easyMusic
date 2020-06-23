@@ -1,7 +1,8 @@
 <template>
   <div class="index-wrapper">
-    <Input search style="width:200px" placeholder="输入搜索内容" @on-search='search' />
-    <Table />
+    <audio controls="" :src='playSrc' autoplay="autoplay"></audio>
+    <Input search style="width:200px" placeholder="输入搜索内容" @on-search='search' v-model="searchVal" />
+    <Table  border ref="selection" :columns="columns" :data="tableData" />
   </div>
 </template>
 
@@ -11,7 +12,47 @@ import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 export default {
   data() {
     return {
+      searchVal: '周杰伦',
+      playSrc: '',
       list: [],
+      page: 1,
+      pagesize: 30,
+      columns: [
+        {
+            type: 'selection',
+            width: 40,
+            align: 'center'
+        },
+        {
+          title: '歌曲名',
+          key: 'gqm'
+        },
+        {
+          title: '歌手',
+          key: 'gs'
+        },
+        {
+          title: '所属专辑',
+          key: 'zj'
+        },
+        {
+          title: '操作',
+          key: 'deel',
+          render: (h, params) => {
+            return h('Icon', {
+              props: {
+                type: 'md-arrow-dropright-circle'
+              },
+              on: {
+                click: () => {
+                  this.playSong(params.row.id)
+                }
+              }
+            })
+          }
+        }
+      ],
+      tableData: []
     }
   },
   computed: {
@@ -19,16 +60,22 @@ export default {
   methods: {
     ...mapActions(['getSongList', 'getSongDetail']),
     async search(val) {
+    const { searchVal, page, pagesize } = this
       let data = await this.getSongList({
-        keyword: '周杰伦',
-        page: 1,
-        pagesize: 30
+        keyword: searchVal,
+        page,
+        pagesize
       })
-      console.log('data', data)
+      this.tableData = data
+    },
+    // 播放单曲
+    async playSong(id) {
+      let src = await this.getSongDetail({ id })
+      this.playSrc = src.wma
     }
   },
   mounted() {
-    this.getSongDetail()
+    // this.getSongDetail()
   }
 }
 </script>

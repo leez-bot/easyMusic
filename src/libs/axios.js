@@ -55,13 +55,8 @@ class HttpRequest {
       this.removePending(requestData)
       const { data, status } = res
       if (status === 200) {
-        if (data.code === 200) {
-          let _data = data.data || {}
+          let _data = data || {}
           return _data
-        } else {
-          Message.warning(res.data.message)
-          return Promise.reject(res)
-        }
       } else {
         Message.error(res.data.message)
         return Promise.reject(res)

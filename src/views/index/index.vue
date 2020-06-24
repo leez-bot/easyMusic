@@ -1,6 +1,9 @@
 <template>
   <div class="index-wrapper">
-    <Input search style="width:200px" placeholder="输入搜索内容" @on-search='search' v-model="searchVal" />
+    <div class="tool-wrapper">
+      <Button type="primary">加到歌单</Button>
+      <Input search style="width:200px" placeholder="输入搜索内容" @on-search='search' v-model="searchVal" />
+    </div>
     <Table  border ref="selection" :columns="columns" :data="tableData" />
     <div class="mini-play-wraper">
       <audio class="mini-player" controls :src='playSrc' autoplay="autoplay" loop></audio>
@@ -14,7 +17,7 @@ import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 export default {
   data() {
     return {
-      searchVal: '周杰伦',
+      searchVal: '演员',
       playSrc: '',
       list: [],
       page: 1,
@@ -41,16 +44,42 @@ export default {
           title: '操作',
           key: 'deel',
           render: (h, params) => {
-            return h('Icon', {
-              props: {
-                type: 'md-arrow-dropright-circle'
-              },
-              on: {
-                click: () => {
-                  this.playSong(params.row.id)
+            return h('div',[
+              h('Icon', {
+                props: {type: 'md-arrow-dropright-circle'},
+                style: { fontSize: '20px',cursor: 'pointer', marginRight: '10px' },
+                attrs: { title: '单曲播放' },
+                on: {
+                  click: () => {
+                    this.playSong(params.row.id)
+                  }
                 }
-              }
-            })
+              }),
+              h('Icon', {
+                props: {type: 'md-add'},
+                style: { fontSize: '20px',cursor: 'pointer', marginRight: '10px' },
+                attrs: { title: '添加到播放列表' },
+                on: {
+                  click: () => {
+                    this.playSong(params.row.id)
+                  }
+                }
+              }),
+              h('a', {
+                attrs: { href: params.row.id }
+              },[
+                h('Icon', {
+                  props: {type: 'md-download'},
+                  style: { fontSize: '20px',cursor: 'pointer',  },
+                  attrs: { title: '下载' },
+                  on: {
+                    click: () => {
+                      this.playSong(params.row.id)
+                    }
+                  }
+                })
+              ]),
+            ])
           }
         }
       ],
@@ -94,6 +123,8 @@ export default {
       justify-content: center;
       .mini-player{
         width: 100%;
+        background: #fff;
+        z-index: 9;
       }
     }
   }

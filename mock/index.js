@@ -13,8 +13,8 @@
 
 // export default Mock
 
-const testMock = require('./mockTest');
+const musicSearchListMock = require('./mockTest');
 
 module.exports = {
-  ...testMock,
+  ...musicSearchListMock,
 };

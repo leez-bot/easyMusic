@@ -23,4 +23,4 @@ const musicSearchListMock = {
     )
   }
 };
-module.exports = { ...testMock };
+module.exports = { ...musicSearchListMock };

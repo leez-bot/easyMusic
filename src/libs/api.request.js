@@ -2,7 +2,7 @@ import HttpRequest from './axios'
 let config  = {
     baseUrl: {
         dev: '',
-        pro: 'http://10.132.102.167:8099'
+        pro: 'https://music.2hakeji.com'
     }
 }
 const baseUrl = process.env.NODE_ENV === 'development' ? config.baseUrl.dev : config.baseUrl.pro

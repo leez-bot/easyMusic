@@ -1,8 +1,10 @@
 <template>
   <div class="index-wrapper">
-    <audio controls="" :src='playSrc' autoplay="autoplay"></audio>
     <Input search style="width:200px" placeholder="输入搜索内容" @on-search='search' v-model="searchVal" />
     <Table  border ref="selection" :columns="columns" :data="tableData" />
+    <div class="mini-play-wraper">
+      <audio class="mini-player" controls :src='playSrc' autoplay="autoplay" loop></audio>
+    </div>
   </div>
 </template>
 
@@ -83,5 +85,16 @@ export default {
 <style scoped lang="less">
   .index-wrapper {
     position: relative;
+    height: 100%;
+    .mini-play-wraper{
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      .mini-player{
+        width: 100%;
+      }
+    }
   }
 </style>

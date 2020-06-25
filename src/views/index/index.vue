@@ -1,12 +1,16 @@
 <template>
   <div class="index-wrapper">
     <div class="tool-wrapper">
-      <Button type="primary">加到歌单</Button>
+      <Button type="primary" @click="playSelect" :disabled='!selectSongs.length'>播放选中</Button>
       <Input search style="width:200px" placeholder="输入搜索内容" @on-search='search' v-model="searchVal" />
+      <Button @click="togglePlayList" type="primary">播放列表</Button>
     </div>
-    <Table  border ref="selection" :columns="columns" :data="tableData" />
+    <Table @on-selection-change='selectChange'  border ref="selection" :columns="columns" :data="tableData" />
+    <Drawer title="Basic Drawer" :closable="false" v-model="playListShow">
+      <p v-for="item in selectSongs" :key='item.id' style="cursor: pointer" @click="playSong(item.id)">{{ item.gqm }}</p>
+    </Drawer>
     <div class="mini-play-wraper">
-      <audio class="mini-player" controls :src='playSrc' autoplay="autoplay" loop></audio>
+      <audio class="mini-player" controls :src='playSrc' autoplay="autoplay" @ended='end'></audio>
     </div>
   </div>
 </template>
@@ -17,7 +21,7 @@ import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 export default {
   data() {
     return {
-      searchVal: '演员',
+      searchVal: '周杰伦',
       playSrc: '',
       list: [],
       page: 1,
@@ -61,7 +65,7 @@ export default {
                 attrs: { title: '添加到播放列表' },
                 on: {
                   click: () => {
-                    this.playSong(params.row.id)
+                    this.addSongToPlaylist(params.row)
                   }
                 }
               }),
@@ -83,7 +87,10 @@ export default {
           }
         }
       ],
-      tableData: []
+      tableData: [],
+      selectSongs: [],
+      currentIndex: 0,
+      playListShow: false
     }
   },
   computed: {
@@ -103,6 +110,42 @@ export default {
     async playSong(id) {
       let src = await this.getSongDetail({ id })
       this.playSrc = src.wma
+    },
+    // 选中
+    selectChange(selectSongs) {
+      this.selectSongs = selectSongs
+    },
+    // 播放选中
+    playSelect() {
+      let id = this.selectSongs[this.currentIndex].id
+      if (id) {
+        this.playSong(id)
+      }
+    },
+    // 播放完毕
+    end() {
+      if (this.currentIndex === this.selectSongs.length - 1) {
+        this.currentIndex = 0
+      } else {
+        this.currentIndex++
+      }
+      this.playSelect()
+    },
+    // 切换播放列表
+    togglePlayList() {
+      this.playListShow = !this.playListShow
+    },
+    // 添加歌曲到播放列表
+    addSongToPlaylist(song) {
+      let { id } = song
+      let hasSongs = this.selectSongs.filter(song => song.id === id)
+      if (hasSongs.length) {
+        this.$Message.warning('播放列表已经有这首歌了!')
+        return
+      }else {
+        this.selectSongs.push(song)
+        this.$Message.success('添加成功!')
+      }
     }
   },
   mounted() {

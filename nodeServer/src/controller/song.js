@@ -2,7 +2,10 @@ const { songTargetUrl } = require('../conf/url')
 const request = require('request')
 
 const requestWrapper = config => new Promise((resolve, reject) => {
-  request(config, (err, res, body) => {
+  request({
+    ...config,
+    // proxy: 'http://lys1848:lz950814.@proxy.h3c.com:8080',
+  }, (err, res, body) => {
     if (err) {
       reject(err)
     } else {
@@ -16,11 +19,6 @@ const getSonglist = async (data) => {
     url: `${songTargetUrl}/findmusic`,
     method: 'POST',
     form: data,
-    proxy: 'http://lys1848:lz950814.@proxy.h3c.com:8080',
-    encoding: 'utf-8',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-    }
   })
   return JSON.parse(list)
 }
@@ -31,11 +29,6 @@ const getSongDetail = async (data) => {
     url: `${songTargetUrl}/musicdetails`,
     method: 'POST',
     form: data,
-    proxy: 'http://lys1848:lz950814.@proxy.h3c.com:8080',
-    encoding: 'utf-8',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-    }
   })
   return JSON.parse(song)
 }

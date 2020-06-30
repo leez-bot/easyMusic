@@ -1,7 +1,7 @@
 <template>
   <div class="index-wrapper">
     <div class="tool-wrapper">
-      <Button type="primary" @click="playSelect" :disabled="!selectSongs.length">播放选中</Button>
+      <Button type="primary" @click="addToPlaylist" :disabled="!selectSongs.length">添加到播放列表</Button>
       <Input
         search
         style="width:200px"
@@ -20,10 +20,10 @@
     />
     <Drawer title="Basic Drawer" :closable="false" v-model="playListShow">
       <p
-        v-for="item in selectSongs"
+        v-for="(item, index) in playlist"
         :key="item.id"
         style="cursor: pointer"
-        @click="playSong(item)"
+        @click="play(item, index)"
       >{{ item.gqm }}</p>
     </Drawer>
     <div class="mini-play-wraper">
@@ -76,7 +76,7 @@ export default {
                 attrs: { title: "单曲播放" },
                 on: {
                   click: () => {
-                    this.playSong(params.row);
+                    this.playThisSong(params.row);
                   }
                 }
               }),
@@ -106,7 +106,7 @@ export default {
                     attrs: { title: "下载" },
                     on: {
                       click: () => {
-                        this.playSong(params.row.id);
+                        this.play(params.row.id);
                       }
                     }
                   })
@@ -118,7 +118,8 @@ export default {
       ],
       tableData: [],
       selectSongs: [],
-      currentIndex: 0,
+      playlist: [],
+      currentIndex: 0, // 当前播放歌曲在播放列表中的下标
       playListShow: false
     };
   },
@@ -134,10 +135,16 @@ export default {
       });
       this.tableData = data;
     },
-    // 播放单曲
-    async playSong(song) {
+    // 单曲播放
+    async playThisSong(song) {
       const { id } = song;
-      this.selectSongs = [song];
+      let src = await this.getSongDetail({ id });
+      this.playSrc = src.wma;
+    },
+    // 播放
+    async play(song, index) {
+      const { id } = song;
+      this.currentIndex = index
       let src = await this.getSongDetail({ id });
       this.playSrc = src.wma;
     },
@@ -146,11 +153,11 @@ export default {
       this.selectSongs = selectSongs;
     },
     // 播放选中
-    playSelect() {
-      let id = this.selectSongs[this.currentIndex].id;
-      let song = this.selectSongs[this.currentIndex];
+    addToPlaylist() {
+      this.playlist.push(this.selectSongs)
       if (id) {
-        this.playSong(song);
+        this.play(song);
+        this.selectSongs = []
       }
     },
     // 播放完毕

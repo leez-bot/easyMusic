@@ -3,11 +3,11 @@ import axios from 'axios'
 import { Message } from 'view-design'
 
 class HttpRequest {
-  constructor (baseUrl = window.location.origin) {
+  constructor(baseUrl = window.location.origin) {
     this.baseUrl = baseUrl
     this.pending = {}
   }
-  getInsideConfig (param) {
+  getInsideConfig(param) {
     const config = {
       baseURL: this.baseUrl || window.location.origin,
       headers: {
@@ -23,7 +23,7 @@ class HttpRequest {
     return config
   }
   // 清除请求队列
-  removePending (key, isRequest = false) {
+  removePending(key, isRequest = false) {
     if (this.pending[key] && isRequest) {
       this.pending[key]()
     }
@@ -36,7 +36,7 @@ class HttpRequest {
     }
     return config.method === 'get' ? encodeURIComponent(url + JSON.stringify(config.params)) : encodeURIComponent(config.url + JSON.stringify(config.data))
   }
-  interceptors (instance, url) {
+  interceptors(instance, url) {
     // 请求拦截
     instance.interceptors.request.use(config => {
       // 添加请求队列
@@ -55,8 +55,8 @@ class HttpRequest {
       this.removePending(requestData)
       const { data, status } = res
       if (status === 200) {
-          let _data = data || {}
-          return _data
+        let _data = data.data || {}
+        return _data
       } else {
         Message.error(res.data.message)
         return Promise.reject(res)
@@ -66,7 +66,7 @@ class HttpRequest {
       return Promise.reject(error)
     })
   }
-  request (options, param) {
+  request(options, param) {
     const instance = axios.create()
     options = Object.assign(this.getInsideConfig(param), options)
     this.interceptors(instance, options.url)

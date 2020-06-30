@@ -1,7 +1,7 @@
 import HttpRequest from './axios'
 let config  = {
     baseUrl: {
-        dev: '',
+        dev: '/api',
         pro: 'https://music.2hakeji.com'
     }
 }

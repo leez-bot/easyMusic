@@ -6,12 +6,12 @@ module.exports = {
     assetsDir: 'resource', // 打包生成的静态资源文件目录
     devServer: {
         proxy: {
+            '/api': {
+                target: 'http://localhost:3000/'
+            },
             // '/': {
             //     target: 'https://music.2hakeji.com'
             // },
-            '/': {
-                target: 'https://music.2hakeji.com'
-            },
         },
         before(app) {
             require('mocker-api')(app, path.resolve('./mock/index.js'))

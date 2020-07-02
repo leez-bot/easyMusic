@@ -1,8 +1,8 @@
 import HttpRequest from './axios'
-let config  = {
+let config = {
     baseUrl: {
         dev: '/api',
-        pro: 'localhost:3000'
+        pro: '/api'
     }
 }
 const baseUrl = process.env.NODE_ENV === 'development' ? config.baseUrl.dev : config.baseUrl.pro

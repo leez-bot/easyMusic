@@ -5,7 +5,7 @@
       <Input
         search
         style="width:200px"
-        placeholder="输入搜索内容"
+        placeholder="歌手、单曲、专辑"
         @on-search="search"
         v-model="searchVal"
       />
@@ -18,12 +18,12 @@
       :columns="columns"
       :data="tableData"
     />
-    <Drawer title="Basic Drawer" :closable="false" v-model="playListShow">
+    <Drawer title="播放列表" :closable="false" v-model="playListShow">
       <p
         v-for="(item, index) in playlist"
         :key="item.id"
         style="cursor: pointer"
-        @click="play(item, index)"
+        @click="play(index)"
       >{{ item.gqm }}</p>
     </Drawer>
     <div class="mini-play-wraper">
@@ -38,7 +38,7 @@ import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
 export default {
   data() {
     return {
-      searchVal: "关键词",
+      searchVal: "",
       playSrc: "",
       list: [],
       page: 1,
@@ -106,7 +106,7 @@ export default {
                     attrs: { title: "下载" },
                     on: {
                       click: () => {
-                        this.play(params.row.id);
+                        this.addAndPlay(params.row);
                       }
                     }
                   })
@@ -128,6 +128,10 @@ export default {
     ...mapActions(["getSongList", "getSongDetail"]),
     async search(val) {
       const { searchVal, page, pagesize } = this;
+      if (!searchVal) {
+        this.$Message.warning("请输入搜索内容");
+        return;
+      }
       let data = await this.getSongList({
         keyword: searchVal,
         page,
@@ -141,33 +145,42 @@ export default {
       let src = await this.getSongDetail({ id });
       this.playSrc = src.wma;
     },
-    // 播放
-    async play(song, index) {
-      const { id } = song;
-      this.currentIndex = index
+    // 播放列表歌曲
+    async play(index) {
+      this.currentIndex = index;
+      if (!this.playlist.length) {
+        this.$Message("暂无歌曲播放!");
+        return;
+      }
+      const song = this.playlist[index] || {};
+      const { id = "" } = song;
       let src = await this.getSongDetail({ id });
       this.playSrc = src.wma;
+    },
+    // 选中表单单曲，添加到播放列表并播放当前
+    addAndPlay(song) {
+      this.playlist.push(song);
+      let len = this.playlist.length;
+      this.play(len - 1);
     },
     // 选中
     selectChange(selectSongs) {
       this.selectSongs = selectSongs;
     },
-    // 播放选中
+    // 添加选中到播放列表
     addToPlaylist() {
-      this.playlist.push(this.selectSongs)
-      if (id) {
-        this.play(song);
-        this.selectSongs = []
-      }
+      this.playlist.push(...this.selectSongs);
+      this.selectSongs = [];
+      this.$refs.selection.selectAll(false);
     },
     // 播放完毕
     end() {
-      if (this.currentIndex === this.selectSongs.length - 1) {
+      if (this.currentIndex === this.playlist.length - 1) {
         this.currentIndex = 0;
       } else {
         this.currentIndex++;
       }
-      this.playSelect();
+      this.play(this.currentIndex);
     },
     // 切换播放列表
     togglePlayList() {

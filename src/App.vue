@@ -5,18 +5,17 @@
 </template>
 
 <script>
-
 export default {
-  name: 'App',
-  data () {
-    return {
-    }
+  name: "App",
+  data() {
+    return {};
   }
-}
+};
 </script>
 
 <style>
-body, html{
+body,
+html {
   width: 100%;
   height: 100%;
 }
@@ -27,8 +26,10 @@ body, html{
   text-align: center;
   color: #2c3e50;
   min-height: 100%;
-  padding-bottom: 54px;
+  padding-bottom: 36px;
 }
 
-.ivu-spin-dot{ background-color: #2196F3 !important }
+.ivu-spin-dot {
+  background-color: #2196f3 !important;
+}
 </style>

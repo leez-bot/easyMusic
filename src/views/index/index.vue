@@ -78,7 +78,7 @@
           </div>
         </div>
         <div style="cursor: pointer" class="item-tools">
-          <Icon @click="play(index)" type="ios-play-outline" v-if="index !== currentIndex" />
+          <Icon @click="playSelect(index)" type="ios-play-outline" v-if="index !== currentIndex" />
           <Icon @click="deleteSong(index)" type="ios-trash-outline" />
         </div>
       </div>
@@ -87,14 +87,14 @@
     <div class="mini-play-wraper">
       <audio
         class="mini-player"
-        @click.stop="clickPlayer"
         controls
         :src="playSrc"
         autoplay="autoplay"
         @ended="end"
+        :loop="playMode === 'one'"
       ></audio>
       <div class="tools">
-        <Icon type="md-repeat" />
+        <img :src="playModeIcon" alt class="play-mode" @click="switchPlayMode" />
         <Icon type="md-list" @click="togglePlayList" />
       </div>
     </div>
@@ -198,7 +198,8 @@ export default {
       selectSongs: [],
       playlist: [],
       currentIndex: 0, // 当前播放歌曲在播放列表中的下标
-      playListShow: false
+      playListShow: false,
+      playMode: "list"
     };
   },
   computed: {
@@ -206,6 +207,14 @@ export default {
     tableHeight() {
       let height = document.body.clientHeight - 94 - 54 - 30;
       return height.toString();
+    },
+    playModeIcon() {
+      let iconObj = {
+        list: "loop-list",
+        one: "loop-one",
+        random: "random-play"
+      };
+      return require(`../../assets/images/${iconObj[this.playMode]}.png`);
     }
   },
   methods: {
@@ -224,12 +233,11 @@ export default {
       this.tableData = data.list || [];
       this.total = Number(data.count);
     },
-    clickPlayer() {},
     // 全部播放
     playAll() {
       this.currentIndex = 0;
       this.playlist = (this.tableData.length && this.tableData) || [];
-      this.play(this.currentIndex);
+      this.play();
     },
     // 单曲播放
     addAndplayThisSong(song) {
@@ -238,28 +246,37 @@ export default {
       if (index === -1) {
         this.playlist.push(song);
         this.currentIndex = this.playlist.length - 1;
-        this.play(this.currentIndex);
+        this.play();
       } else {
         this.currentIndex = index;
-        this.play(index);
+        this.play();
       }
     },
-    // 播放列表歌曲
-    async play(index) {
+    // 播放选中
+    playSelect(index) {
       this.currentIndex = index;
+      this.play();
+    },
+    // 播放列表歌曲
+    async play() {
       if (!this.playlist.length) {
         this.$Message("暂无歌曲播放!");
         return;
       }
-      const song = this.playlist[index] || {};
+      const song = this.playlist[this.currentIndex] || {};
       const { id = "" } = song;
       let src = await this.getSongDetail({ id });
       this.playSrc = src.wma;
     },
+    // 删除列表歌曲
     deleteSong(index) {
       this.playlist.splice(index, 1);
+      if (index === this.playlist.length) {
+        this.currentIndex = 0;
+        this.play();
+      }
       if (index === this.currentIndex) {
-        this.play(index);
+        this.play();
       }
     },
     // 下载歌曲
@@ -280,19 +297,34 @@ export default {
       this.selectSongs.map(item => {
         if (!map[item.id]) notInPlaylist.push(item);
       });
-      console.log(notInPlaylist);
       this.playlist.push(...notInPlaylist);
       this.selectSongs = [];
       this.$refs.selection.selectAll(false);
     },
     // 播放完毕
     end() {
-      if (this.currentIndex === this.playlist.length - 1) {
-        this.currentIndex = 0;
+      if (this.playMode === "random") {
+        let len = this.playlist.length;
+        let _index = Math.floor(Math.random() * len);
+        this.currentIndex = _index;
       } else {
-        this.currentIndex++;
+        if (this.currentIndex === this.playlist.length - 1) {
+          this.currentIndex = 0;
+        } else {
+          this.currentIndex++;
+        }
       }
-      this.play(this.currentIndex);
+      this.play();
+    },
+    // 切换播放模式
+    switchPlayMode() {
+      if (this.playMode === "list") {
+        this.playMode = "one";
+      } else if (this.playMode === "one") {
+        this.playMode = "random";
+      } else {
+        this.playMode = "list";
+      }
     },
     // 切换播放列表
     togglePlayList() {
@@ -358,6 +390,9 @@ export default {
       font-size: 20px;
       display: flex;
       justify-content: space-around;
+      .play-mode {
+        width: 20px;
+      }
     }
   }
   .pages {
@@ -411,7 +446,7 @@ export default {
       }
     }
     .item-tools {
-      font-size: 20px;
+      font-size: 18px;
     }
   }
 }

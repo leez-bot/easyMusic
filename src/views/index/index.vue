@@ -2,29 +2,47 @@
   <div class="index-wrapper">
     <!-- 操作区 -->
     <div class="tool-wrapper">
-      <div style="text-align: right">
+      <div style="text-align: center">
         <Input
+          class="search-input"
           search
-          style="width:200px"
+          clearable
           placeholder="歌手、单曲、专辑"
           @on-search="search"
           v-model="searchVal"
         />
       </div>
 
-      <div style="text-align: left;margin-top:10px">
-        <Button
-          type="warning"
-          @click="playAll"
-          :disabled="!tableData.length"
-          style="margin-right: 10px"
-          size="small"
-        >
-          <Icon type="md-play" />全部播放
-        </Button>
-        <Button type="primary" size="small" @click="addToPlaylist" :disabled="!selectSongs.length">
-          <Icon type="md-add" />添加
-        </Button>
+      <div class="btn-group">
+        <div class="left">
+          <Button
+            type="warning"
+            @click="playAll"
+            :disabled="!tableData.length"
+            style="margin-right: 10px"
+            size="small"
+          >
+            <Icon type="md-play" />全部播放
+          </Button>
+          <Button
+            type="primary"
+            size="small"
+            @click="addToPlaylist"
+            :disabled="!selectSongs.length"
+          >
+            <Icon type="md-add" />添加
+          </Button>
+        </div>
+        <div class="right">
+          <Button
+            size="small"
+            icon="logo-github"
+            to="https://github.com/C-old-M-oon/easyMusic"
+            target="_blank"
+            style="margin-right: 10px"
+          >源码</Button>
+          <Button size="small" icon="ios-notifications-outline">须知</Button>
+        </div>
       </div>
     </div>
     <!-- 搜索结果列表 -->
@@ -107,7 +125,7 @@ import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
 export default {
   data() {
     return {
-      searchVal: "周杰伦",
+      searchVal: "",
       playSrc: "",
       list: [],
       page: 1,
@@ -121,19 +139,23 @@ export default {
         },
         {
           title: "歌曲名",
-          key: "gqm"
+          key: "gqm",
+          align: "center"
         },
         {
           title: "歌手",
-          key: "gs"
+          key: "gs",
+          align: "center"
         },
         {
           title: "专辑",
-          key: "zj"
+          key: "zj",
+          align: "center"
         },
         {
           title: "操作",
           key: "deel",
+          align: "center",
           render: (h, params) => {
             return h(
               "div",
@@ -144,7 +166,7 @@ export default {
               },
               [
                 h("Icon", {
-                  props: { type: "md-arrow-dropright-circle" },
+                  props: { type: "ios-play-outline" },
                   style: {
                     fontSize: "20px",
                     cursor: "pointer",
@@ -158,7 +180,7 @@ export default {
                   }
                 }),
                 h("Icon", {
-                  props: { type: "md-add" },
+                  props: { type: "ios-add" },
                   style: {
                     fontSize: "20px",
                     cursor: "pointer",
@@ -371,6 +393,14 @@ export default {
   padding: 0 10px;
   .tool-wrapper {
     padding: 10px 0;
+    .search-input {
+      width: 600px;
+    }
+    .btn-group {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
   }
   .mini-play-wraper {
     width: 100%;
@@ -460,6 +490,12 @@ export default {
   }
   100% {
     margin-top: 0;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .index-wrapper .tool-wrapper .search-input {
+    width: 300px;
   }
 }
 </style>

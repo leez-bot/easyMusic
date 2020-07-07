@@ -1,10 +1,11 @@
 const { songTargetUrl } = require('../conf/url')
+const { proxyUrl } = require('../conf/proxy')
 const request = require('request')
 
 const requestWrapper = config => new Promise((resolve, reject) => {
   request({
     ...config,
-    proxy: 'http://lys1848:lz950814.@proxy.h3c.com:8080',
+    proxy: proxyUrl,
   }, (err, res, body) => {
     if (err) {
       reject(err)

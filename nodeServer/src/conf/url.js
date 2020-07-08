@@ -1,4 +1,4 @@
-const songTargetUrl = 'https://music.2hakeji.com';
+const songTargetUrl = 'http://www.kuwo.cn';
 
 module.exports = {
   songTargetUrl

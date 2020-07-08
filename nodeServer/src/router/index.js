@@ -16,11 +16,7 @@ page.get('/song/list', async (ctx) => {
 	let request = ctx.request
 	let req_query = request.query
 	let data = await getSongDetail(req_query)
-	ctx.body = {
-		code: 200,
-		message: 'success',
-		data
-	}
+	ctx.body = { data }
 })
 
 let router = new Router()

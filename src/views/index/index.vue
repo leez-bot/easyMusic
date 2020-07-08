@@ -288,7 +288,7 @@ export default {
       const song = this.playlist[this.currentIndex] || {};
       const { id = "" } = song;
       let src = await this.getSongDetail({ id });
-      this.playSrc = src.wma;
+      this.playSrc = src.url;
     },
     // 删除列表歌曲
     deleteSong(index) {

@@ -41,10 +41,12 @@
             target="_blank"
             style="margin-right: 10px"
           >源码</Button>
-          <Button size="small" icon="ios-notifications-outline">须知</Button>
+          <Button size="small" icon="ios-notifications-outline" @click="toggleInfo">须知</Button>
         </div>
       </div>
     </div>
+    <!-- 使用须知 -->
+    <UseInfo :infoShow="infoShow" @hideInfo="toggleInfo" />
     <!-- 搜索结果列表 -->
     <div class="table-wrapper" style="position: relative">
       <Table
@@ -54,6 +56,7 @@
         :columns="columns"
         :data="tableData"
         :height="tableHeight"
+        class="song-list-table"
       />
       <Spin fix v-if="loading"></Spin>
     </div>
@@ -121,11 +124,13 @@
 
 <script>
 import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
+import UseInfo from './useInfo'
 
 export default {
+  components: { UseInfo },
   data() {
     return {
-      searchVal: "周杰伦",
+      searchVal: "",
       playSrc: "",
       list: [],
       page: 1,
@@ -134,7 +139,7 @@ export default {
       columns: [
         {
           type: "selection",
-          width: 40,
+          width: 50,
           align: "center"
         },
         {
@@ -221,7 +226,8 @@ export default {
       playlist: [],
       currentIndex: 0, // 当前播放歌曲在播放列表中的下标
       playListShow: false,
-      playMode: "list"
+      playMode: "list",
+      infoShow: false
     };
   },
   computed: {
@@ -255,6 +261,9 @@ export default {
       this.tableData = data.list || [];
       this.total = Number(data.total);
     },
+    toggleInfo() {
+      this.infoShow = !this.infoShow
+    },
     // 全部播放
     playAll() {
       this.currentIndex = 0;
@@ -286,9 +295,10 @@ export default {
         return;
       }
       const song = this.playlist[this.currentIndex] || {};
-      const { rid = "" } = song;
+      const { rid = "", name = '未知歌曲', artist = '未知歌手' } = song;
       let src = await this.getSongDetail({ rid });
       this.playSrc = src.url;
+      document.title = `${name}_${artist}`
     },
     // 删除列表歌曲
     deleteSong(index) {
@@ -381,121 +391,10 @@ export default {
     }
   },
   mounted() {
-    this.search()
   }
 };
 </script>
 
 <style lang="less">
-.index-wrapper {
-  position: relative;
-  height: 100%;
-  padding: 0 10px;
-  .tool-wrapper {
-    padding: 10px 0;
-    .search-input {
-      width: 600px;
-    }
-    .btn-group {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-    }
-  }
-  .mini-play-wraper {
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    background: #f1f3f4;
-    z-index: 9;
-    .mini-player {
-      width: 85%;
-      height: 36px;
-    }
-    .tools {
-      flex: 1;
-      font-size: 20px;
-      display: flex;
-      justify-content: space-around;
-      .play-mode {
-        width: 20px;
-      }
-    }
-  }
-  .pages {
-    text-align: right;
-    margin-top: 15px;
-    .ivu-page-options-sizer {
-      margin-right: 0;
-    }
-  }
-}
-
-.play-list-wrapper {
-  .play-list-header {
-    font-size: 18px;
-  }
-  .play-list-item {
-    border-bottom: 1px solid #ccc;
-    display: flex;
-    padding: 5px 0;
-    justify-content: space-between;
-    &.active {
-      color: #ff410f;
-    }
-    .item-name {
-      display: flex;
-      align-items: center;
-      width: 85%;
-      .song-info {
-        width: calc(100% - 25px);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .audio-icon {
-        margin-right: 5px;
-        display: flex;
-        width: 20px;
-        height: 12px;
-        min-width: 20px;
-        overflow: hidden;
-        .column {
-          &:first {
-            margin-left: 0;
-          }
-          width: 2px;
-          height: 100%;
-          margin-left: 2px;
-          background-color: #ff410f;
-          animation: play 0.9s linear infinite alternate;
-        }
-      }
-    }
-    .item-tools {
-      font-size: 18px;
-    }
-  }
-}
-
-@keyframes play {
-  0% {
-    margin-top: 0;
-  }
-  50% {
-    margin-top: 9px;
-  }
-  100% {
-    margin-top: 0;
-  }
-}
-
-@media screen and (max-width: 500px) {
-  .index-wrapper .tool-wrapper .search-input {
-    width: 300px;
-  }
-}
+@import url('./index.less');
 </style>

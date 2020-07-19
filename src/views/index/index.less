@@ -1,0 +1,117 @@
+
+.index-wrapper {
+    position: relative;
+    height: 100%;
+    padding: 0 10px;
+    .tool-wrapper {
+      padding: 10px 0;
+      .search-input {
+        width: 600px;
+      }
+      .btn-group {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+    .table-wrapper{
+      .song-list-table .ivu-table-cell{
+        padding: 0 5px;
+      }
+    }
+    .mini-play-wraper {
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      background: #f1f3f4;
+      z-index: 9;
+      .mini-player {
+        width: 85%;
+        height: 36px;
+      }
+      .tools {
+        flex: 1;
+        font-size: 20px;
+        display: flex;
+        justify-content: space-around;
+        .play-mode {
+          width: 20px;
+        }
+      }
+    }
+    .pages {
+      text-align: right;
+      margin-top: 15px;
+      .ivu-page-options-sizer {
+        margin-right: 0;
+      }
+    }
+  }
+  
+  .play-list-wrapper {
+    .play-list-header {
+      font-size: 18px;
+    }
+    .play-list-item {
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      padding: 5px 0;
+      justify-content: space-between;
+      &.active {
+        color: #ff410f;
+      }
+      .item-name {
+        display: flex;
+        align-items: center;
+        width: 85%;
+        .song-info {
+          width: calc(100% - 25px);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .audio-icon {
+          margin-right: 5px;
+          display: flex;
+          width: 20px;
+          height: 12px;
+          min-width: 20px;
+          overflow: hidden;
+          .column {
+            &:first {
+              margin-left: 0;
+            }
+            width: 2px;
+            height: 100%;
+            margin-left: 2px;
+            background-color: #ff410f;
+            animation: play 0.9s linear infinite alternate;
+          }
+        }
+      }
+      .item-tools {
+        font-size: 18px;
+      }
+    }
+  }
+  
+  @keyframes play {
+    0% {
+      margin-top: 0;
+    }
+    50% {
+      margin-top: 9px;
+    }
+    100% {
+      margin-top: 0;
+    }
+  }
+  
+  @media screen and (max-width: 500px) {
+    .index-wrapper .tool-wrapper .search-input {
+      width: 300px;
+    }
+  }

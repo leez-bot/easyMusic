@@ -16,30 +16,23 @@ const requestWrapper = config => new Promise((resolve, reject) => {
 })
 
 const getSonglist = async (data) => {
-  let list = await requestWrapper({
-    // url: 'https://music.2hakeji.com/findmusic',
-    // method: 'POST',
-    // form: data
-    url: `${songTargetUrl}/api/www/search/searchMusicBykeyWord`,
+  const keyword = encodeURI(data.keyword)
+  const url = `${songTargetUrl}/api/www/search/searchMusicBykeyWord?key=${keyword}&pn=${data.page}&rn=${data.pagesize}`
+  let res = await requestWrapper({
+    url,
     method: 'GET',
     headers: {
-      'Cookie': 'kw_token=CJRMBYSOXV8',
-      'csrf': 'CJRMBYSOXV8',
-      'Referer': 'http://www.kuwo.cn/search/list?key=%E5%91%A8%E6%9D%B0%E4%BC%A6'
-    },
-    data: {
-      key: data.keyword,
-      pn: data.page,
-      rn: data.pagesize
+      csrf: 'AAAAAAAAAAA',
+      Referer: 'http://kuwo.cn/',
+      Cookie: 'kw_token=AAAAAAAAAAA',
     },
   })
-  return JSON.parse(list)
+  return JSON.parse(res)
 }
-
 
 const getSongDetail = async (data) => {
   let song = await requestWrapper({
-    url: `${songTargetUrl}/url?rid=${data.id}&format=mp3&type=convert_url3&from=web`,
+    url: `${songTargetUrl}/url?rid=${data.rid}&format=mp3&type=convert_url3&from=web`,
     method: 'GET'
   })
   return JSON.parse(song)

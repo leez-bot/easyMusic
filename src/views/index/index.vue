@@ -79,7 +79,7 @@
       <div
         :class="{active: index === currentIndex, 'play-list-item': true}"
         v-for="(item, index) in playlist"
-        :key="item.id"
+        :key="item.rid"
       >
         <div class="item-name">
           <div class="audio-icon unselectable" v-if="index === currentIndex">
@@ -90,9 +90,9 @@
             <div class="column" style="animation-delay:-0.6s"></div>
           </div>
           <div class="song-info">
-            {{ item.gqm }}
+            {{ item.name }}
             -
-            {{ item.gs }}
+            {{ item.artist }}
           </div>
         </div>
         <div style="cursor: pointer" class="item-tools">
@@ -125,7 +125,7 @@ import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
 export default {
   data() {
     return {
-      searchVal: "",
+      searchVal: "周杰伦",
       playSrc: "",
       list: [],
       page: 1,
@@ -139,17 +139,17 @@ export default {
         },
         {
           title: "歌曲名",
-          key: "gqm",
+          key: "name",
           align: "center"
         },
         {
           title: "歌手",
-          key: "gs",
+          key: "artist",
           align: "center"
         },
         {
           title: "专辑",
-          key: "zj",
+          key: "album",
           align: "center"
         },
         {
@@ -196,7 +196,7 @@ export default {
                 // h(
                 //   "a",
                 //   {
-                //     attrs: { href: params.row.id }
+                //     attrs: { href: params.row.rid }
                 //   },
                 //   [
                 //     h("Icon", {
@@ -253,7 +253,7 @@ export default {
         pagesize
       });
       this.tableData = data.list || [];
-      this.total = Number(data.count);
+      this.total = Number(data.total);
     },
     // 全部播放
     playAll() {
@@ -263,8 +263,8 @@ export default {
     },
     // 单曲播放
     addAndplayThisSong(song) {
-      const { id } = song;
-      let index = this.playlist.findIndex(item => item.id === id);
+      const { rid } = song;
+      let index = this.playlist.findIndex(item => item.rid === rid);
       if (index === -1) {
         this.playlist.push(song);
         this.currentIndex = this.playlist.length - 1;
@@ -286,8 +286,8 @@ export default {
         return;
       }
       const song = this.playlist[this.currentIndex] || {};
-      const { id = "" } = song;
-      let src = await this.getSongDetail({ id });
+      const { rid = "" } = song;
+      let src = await this.getSongDetail({ rid });
       this.playSrc = src.url;
     },
     // 删除列表歌曲
@@ -314,10 +314,10 @@ export default {
       let map = {};
       let notInPlaylist = [];
       this.playlist.map(item => {
-        map[item.id] = true;
+        map[item.rid] = true;
       });
       this.selectSongs.map(item => {
-        if (!map[item.id]) notInPlaylist.push(item);
+        if (!map[item.rid]) notInPlaylist.push(item);
       });
       this.playlist.push(...notInPlaylist);
       this.selectSongs = [];
@@ -354,8 +354,8 @@ export default {
     },
     // 添加歌曲到播放列表
     addSongToPlaylist(song) {
-      let { id } = song;
-      let hasSongs = this.playlist.filter(song => song.id === id);
+      let { rid } = song;
+      let hasSongs = this.playlist.filter(song => song.rid === rid);
       if (hasSongs.length) {
         this.$Message.warning("播放列表已经有这首歌了!");
         return;
@@ -381,7 +381,7 @@ export default {
     }
   },
   mounted() {
-    // this.getSongDetail()
+    this.search()
   }
 };
 </script>

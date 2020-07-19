@@ -9,7 +9,7 @@ export const getSongList = async ({ commit, state }, params) => {
     }, params)
     if (data) {
         commit(types.SETSTATE, { loading: false })
-        return Promise.resolve(data)
+        return Promise.resolve(data.data)
     }
     if (err) { commit(types.SETSTATE, { loading: false }) }
 }

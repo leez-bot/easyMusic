@@ -7,11 +7,7 @@ page.get('/song/list', async (ctx) => {
 	let request = ctx.request
 	let req_query = request.query
 	let data = await getSonglist(req_query)
-	ctx.body = {
-		code: 200,
-		message: 'success',
-		data
-	}
+	ctx.body = { data }
 }).get('/song/detail', async (ctx) => {
 	let request = ctx.request
 	let req_query = request.query

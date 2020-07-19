@@ -26,7 +26,9 @@
 </template>
 
 <script>
+import { Modal, Button, Icon } from 'view-design'
 export default {
+	components: { Modal, Button, Icon },
 	props: {
 		infoShow: {
 			type: Boolean,

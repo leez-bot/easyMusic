@@ -5,10 +5,10 @@ import router from './router/router.js'
 import store from './store/index'
 import { messages } from './libs/language'
 
-import ViewUI from 'view-design';
+// import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
 
-Vue.use(ViewUI);
+// Vue.use(ViewUI);
 Vue.use(VueI18n)
 
 const i18n = new VueI18n({

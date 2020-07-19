@@ -125,9 +125,10 @@
 <script>
 import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
 import UseInfo from './useInfo'
+import { Input, Button, Table, Drawer, Icon, Spin, Page, Message } from 'view-design'
 
 export default {
-  components: { UseInfo },
+  components: { UseInfo, Input, Button, Table, Drawer, Icon, Spin, Page },
   data() {
     return {
       searchVal: "",
@@ -250,7 +251,7 @@ export default {
     async search() {
       const { searchVal, page, pagesize } = this;
       if (!searchVal) {
-        this.$Message.warning("请输入搜索内容");
+        Message.warning("请输入搜索内容");
         return;
       }
       let data = await this.getSongList({
@@ -291,7 +292,7 @@ export default {
     // 播放列表歌曲
     async play() {
       if (!this.playlist.length) {
-        this.$Message("暂无歌曲播放!");
+        Message("暂无歌曲播放!");
         return;
       }
       const song = this.playlist[this.currentIndex] || {};
@@ -313,7 +314,7 @@ export default {
     },
     // 下载歌曲
     downLoadSong(song) {
-      this.$Message.error("保护版权，不要下载");
+      Message.error("保护版权，不要下载");
     },
     // 选中
     selectChange(selectSongs) {
@@ -367,11 +368,11 @@ export default {
       let { rid } = song;
       let hasSongs = this.playlist.filter(song => song.rid === rid);
       if (hasSongs.length) {
-        this.$Message.warning("播放列表已经有这首歌了!");
+        Message.warning("播放列表已经有这首歌了!");
         return;
       } else {
         this.playlist.push(song);
-        this.$Message.success("添加成功!");
+        Message.success("添加成功!");
       }
     },
     // 清空播放列表

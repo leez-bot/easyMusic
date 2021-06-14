@@ -30,10 +30,11 @@
             @click="addToPlaylist"
             :disabled="!selectSongs.length"
           >
-            <Icon type="md-add" />添加
+            <Icon type="md-add" />
           </Button>
         </div>
         <div class="right">
+          <Button size="small" icon="ios-people-outline" style="margin-right: 10px" @click="toggleSinger(true)">歌手</Button>
           <Button
             size="small"
             icon="logo-github"
@@ -104,18 +105,56 @@
         </div>
       </div>
     </Drawer>
+    <!-- 歌手列表 -->
+    <Drawer :closable="false" v-model="singerShow" class-name="singer-list-wrapper" width="300">
+      <slot name="header">
+        <p class="play-list-header">
+          歌手列表
+        </p>
+      </slot>
+      <Scroll :on-reach-bottom="getSinger" :distance-to-edge=-50 :height="windowHeight">
+        <div
+          v-for="(singer) in singers"
+          :key="singer.id"
+          class="singer-item"
+          @click="selectSinger(singer.id)"
+        >
+          <Avatar :src="singer.pic" />
+          &nbsp;&nbsp;
+          <span class="singer-name">{{ singer.name }}</span>
+        </div>
+      </Scroll>
+    </Drawer>
     <!-- 播放器 -->
     <div class="mini-play-wraper">
       <audio
         class="mini-player"
         controls
+        controlsList="nodownload"
         :src="playSrc"
         autoplay="autoplay"
         @ended="end"
         :loop="playMode === 'one'"
+        @timeupdate="timeupdate"
       ></audio>
       <div class="tools">
+        <Poptip placement="top-end" width="200" content="content">
+          <div class="lrc-wrapper" slot="content">
+            <span v-if="!currentLrc.length">暂无歌词</span>
+            <ul v-else>
+              <li
+              v-for="(lrc, index) in currentLrc"
+              :key="lrc.time"
+              :class="{active: currentLrcIndex === index, 'lrc-line': true}"
+            >
+              {{ lrc.lineLyric }}
+            </li>
+            </ul>
+          </div>
+          <Icon type="md-funnel" />
+        </Poptip>
         <img :src="playModeIcon" alt class="play-mode" @click="switchPlayMode" />
+        <Icon type="ios-arrow-forward" @click="end" />
         <Icon type="md-list" @click="togglePlayList" />
       </div>
     </div>
@@ -125,10 +164,10 @@
 <script>
 import { mapState, mapMutations, mapGetters, mapActions } from "vuex";
 import UseInfo from './useInfo'
-import { Input, Button, Table, Drawer, Icon, Spin, Page, Message } from 'view-design'
+import { Input, Button, Table, Drawer, Icon, Spin, Page, Message, Scroll, Avatar, Poptip } from 'view-design'
 
 export default {
-  components: { UseInfo, Input, Button, Table, Drawer, Icon, Spin, Page },
+  components: { UseInfo, Input, Button, Table, Drawer, Icon, Spin, Page, Scroll, Avatar, Poptip },
   data() {
     return {
       searchVal: "",
@@ -151,12 +190,34 @@ export default {
         {
           title: "歌手",
           key: "artist",
-          align: "center"
+          align: "center",
+          render: (h, params) => {
+            return h("div", {
+              on: {
+                click: () => {
+                  this.searchArtist(params.row.artistid);
+                }
+              }
+            }, params.row.artist)
+          }
         },
         {
           title: "专辑",
           key: "album",
-          align: "center"
+          align: "center",
+          render: (h, params) => {
+            return h("div", {
+              style: {
+                color: '#2d8cf0',
+                cursor: 'pointer'
+              },
+              on: {
+                click: () => {
+                  this.searchAlbum(params.row.albumid);
+                }
+              }
+            }, params.row.album)
+          }
         },
         {
           title: "操作",
@@ -167,7 +228,8 @@ export default {
               "div",
               {
                 style: {
-                  display: "flex"
+                  display: "flex",
+                  justifyContent: "center"
                 }
               },
               [
@@ -198,25 +260,17 @@ export default {
                       this.addSongToPlaylist(params.row);
                     }
                   }
+                }),
+                h("Icon", {
+                  props: { type: "ios-arrow-round-down" },
+                  style: { fontSize: "20px", cursor: "pointer" },
+                  attrs: { title: "下载" },
+                  on: {
+                    click: () => {
+                      this.downLoadSong(params.row);
+                    }
+                  }
                 })
-                // h(
-                //   "a",
-                //   {
-                //     attrs: { href: params.row.rid }
-                //   },
-                //   [
-                //     h("Icon", {
-                //       props: { type: "md-download" },
-                //       style: { fontSize: "20px", cursor: "pointer" },
-                //       attrs: { title: "下载" },
-                //       on: {
-                //         click: () => {
-                //           this.downLoadSong(params.row);
-                //         }
-                //       }
-                //     })
-                //   ]
-                // )
               ]
             );
           }
@@ -228,7 +282,13 @@ export default {
       currentIndex: 0, // 当前播放歌曲在播放列表中的下标
       playListShow: false,
       playMode: "list",
-      infoShow: false
+      infoShow: false,
+      singerShow: false,
+      singerPage: 1,
+      singers: [],
+      windowHeight: window.innerHeight - 60,
+      currentLrc: [],
+      currentLrcTime: 0
     };
   },
   computed: {
@@ -244,10 +304,28 @@ export default {
         random: "random-play"
       };
       return require(`../../assets/images/${iconObj[this.playMode]}.png`);
+    },
+    currentLrcIndex() {
+      let index = 0;
+      if (this.currentLrcTime && this.currentLrcTime < Number(this.currentLrc[0].time)) {
+        index = 0;
+      } else if (this.currentLrcTime && this.currentLrcTime > Number(this.currentLrc[this.currentLrc.length - 1].time)) {
+        index = this.currentLrc.length - 1;
+      } else if (this.currentLrcTime && this.currentLrc.length) {
+        for(let i = 0; i < this.currentLrc.length; i++) {
+          const preTime = Number(this.currentLrc[i - 1]?.time) || 0;
+          const nextTime = Number(this.currentLrc[i + 1]?.time) || 0;
+          if (this.currentLrcTime > preTime && this.currentLrcTime < nextTime) {
+            index = i;
+            break
+          }
+        }
+      }
+      return index
     }
   },
   methods: {
-    ...mapActions(["getSongList", "getSongDetail"]),
+    ...mapActions(["getSongList", "getSongDetail", "getArtistSongs", "getAlbumSongs", "getSingers", "getSongLrc"]),
     async search() {
       const { searchVal, page, pagesize } = this;
       if (!searchVal) {
@@ -259,11 +337,56 @@ export default {
         page,
         pagesize
       });
-      this.tableData = data.list || [];
-      this.total = Number(data.total);
+      this.tableData = data.data.list || [];
+      this.total = Number(data.data.total);
+    },
+    // 搜歌手
+    async searchArtist(artistId) {
+      const { page, pagesize } = this;
+      const data = await this.getArtistSongs({
+        artistid: artistId,
+        page,
+        pagesize
+      })
+      this.tableData = data.data.list;
+      this.total = Number(data.data.total);
+    },
+    // 搜专辑
+    async searchAlbum (albumId) {
+      const data = await this.getAlbumSongs({
+        albumId
+      })
+      this.tableData = data.data.musicList;
+      this.total = Number(data.data.total);
     },
     toggleInfo() {
       this.infoShow = !this.infoShow
+    },
+    // 歌手
+    toggleSinger(flag) {
+      if (flag && !this.singers.length) {
+        this.singerPage = 1;
+        this.getSinger();
+      }
+      this.singerShow = !this.singerShow;
+    },
+    // 选中歌手
+    selectSinger(id) {
+      this.page = 1;
+      this.searchArtist(id);
+      this.toggleSinger();
+    },
+    // 无限加载歌手
+    async getSinger () {
+      const params = {
+        page: this.singerPage,
+        pagesize: 100
+      }
+      const res = await this.getSingers(params);
+      if (res.data.artistList?.length) {
+        this.singers.push(...res.data.artistList);
+        this.singerPage++;
+      }
     },
     // 全部播放
     playAll() {
@@ -297,9 +420,15 @@ export default {
       }
       const song = this.playlist[this.currentIndex] || {};
       const { rid = "", name = '未知歌曲', artist = '未知歌手' } = song;
-      let src = await this.getSongDetail({ rid });
-      this.playSrc = src.url;
+      const res = await this.getSongDetail({ rid });
+      this.playSrc = res.url;
       document.title = `${name}_${artist}`
+      const resLrc = await this.getSongLrc({ songId: rid });
+      this.currentLrc =  resLrc.data.lrclist || [];
+    },
+    // 播放监听
+    timeupdate (event) {
+      this.currentLrcTime = event.target.currentTime;
     },
     // 删除列表歌曲
     deleteSong(index) {
@@ -313,8 +442,26 @@ export default {
       }
     },
     // 下载歌曲
-    downLoadSong(song) {
-      Message.error("保护版权，不要下载");
+    async downLoadSong(song) {
+      if (!song.rid) {
+        return;
+      }
+      const src = await this.getSongDetail({ rid: song.rid });
+      const url = src.url;
+      const { name, artist } = song;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = "blob";
+      xhr.onload = function () {
+        if (this.status === 200) {
+          var blob = this.response;
+          var a = document.createElement('a');
+          a.download = `${name}_${artist}`;
+          a.href=window.URL.createObjectURL(blob);
+          a.click();
+        }
+      };
+      xhr.send();
     },
     // 选中
     selectChange(selectSongs) {
@@ -347,6 +494,8 @@ export default {
           this.currentIndex++;
         }
       }
+      this.currentLrc = [];
+      this.currentLrcTime = 0;
       this.play();
     },
     // 切换播放模式

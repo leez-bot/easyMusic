@@ -1,1 +1,2 @@
-// export const unMsg = state => state.msg.split('').reverse().join('')
+// 当前播放歌曲源
+export const currentPlayUrl = state => state.currentSong.url || '';

@@ -7,7 +7,7 @@ const routes = [
     {
         path: '/',
         name: 'index',
-        component: () => import('@/views/index/index_new')
+        component: () => import('@/views/index')
     },
 ]
 

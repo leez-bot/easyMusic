@@ -185,7 +185,8 @@ export default {
         {
           title: "歌曲名",
           key: "name",
-          align: "center"
+          align: "center",
+          type: 'html'
         },
         {
           title: "歌手",
@@ -198,7 +199,7 @@ export default {
                   this.searchArtist(params.row.artistid);
                 }
               }
-            }, params.row.artist)
+            }, params.row.artist.replace('&nbsp;', ''))
           }
         },
         {
@@ -216,7 +217,7 @@ export default {
                   this.searchAlbum(params.row.albumid);
                 }
               }
-            }, params.row.album)
+            }, params.row.album.replace('&nbsp;', ''))
           }
         },
         {
@@ -447,6 +448,10 @@ export default {
         return;
       }
       const src = await this.getSongDetail({ rid: song.rid });
+      const msg = Message.loading({
+          content: '资源下载中...',
+          duration: 0
+      });
       const url = src.url;
       const { name, artist } = song;
       var xhr = new XMLHttpRequest();
@@ -459,6 +464,7 @@ export default {
           a.download = `${name}_${artist}`;
           a.href=window.URL.createObjectURL(blob);
           a.click();
+          msg();
         }
       };
       xhr.send();

@@ -1,5 +1,5 @@
-const songTargetUrl = 'http://www.kuwo.cn';
-const lrcTargetUrl = 'http://m.kuwo.cn';
+const songTargetUrl = '';
+const lrcTargetUrl = '';
 
 module.exports = {
   songTargetUrl,

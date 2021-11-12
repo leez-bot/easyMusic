@@ -186,7 +186,17 @@ export default {
           title: "歌曲名",
           key: "name",
           align: "center",
-          type: 'html'
+          render: (h, params) => {
+            if (params.row.isListenFee) {
+              return h('span', {
+                attrs: {
+                  style: 'color: red'
+                }
+              }, params.row.name.replace('&nbsp;', ''))
+            } else {
+              return h('span', {}, params.row.name.replace('&nbsp;', ''))
+            }
+          }
         },
         {
           title: "歌手",
@@ -416,13 +426,20 @@ export default {
     // 播放列表歌曲
     async play() {
       if (!this.playlist.length) {
-        Message("暂无歌曲播放!");
+        Message.warning("暂无歌曲播放!");
         return;
       }
       const song = this.playlist[this.currentIndex] || {};
       const { rid = "", name = '未知歌曲', artist = '未知歌手' } = song;
+      if (song.isListenFee) {
+        Message.warning("收费歌曲!");
+        if (this.playlist[this.currentIndex + 1] && !this.playlist[this.currentIndex + 1].isListenFee) {
+          this.end();
+        }
+        return;
+      }
       const res = await this.getSongDetail({ rid });
-      this.playSrc = res.url;
+      this.playSrc = res.data.url;
       document.title = `${name}_${artist}`
       const resLrc = await this.getSongLrc({ songId: rid });
       this.currentLrc =  resLrc.data.lrclist || [];
@@ -452,7 +469,7 @@ export default {
           content: '资源下载中...',
           duration: 0
       });
-      const url = src.url;
+      const url = src.data.url;
       const { name, artist } = song;
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);

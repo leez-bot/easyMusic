@@ -34,7 +34,7 @@ const getSonglist = async (data) => {
 
 const getSongDetail = async (data) => {
   let song = await requestWrapper({
-    url: `${songTargetUrl}/url?rid=${data.rid}&format=mp3&type=convert_url3&from=web`,
+    url: `${songTargetUrl}/api/v1/www/music/playUrl?mid=${data.rid}&type=music&httpsStatus=1&reqId=88e40ac6705fe0f6e48eff22a7df8b87`,
     method: 'GET'
   })
   return JSON.parse(song)
